@@ -19,7 +19,6 @@ const protect = async (req, res, next) => {
             next();
 
     } catch (error) {
-            console.log(error);
             res.status(404);
     }
 };
@@ -31,7 +30,6 @@ const admin = (req, res, next) => {
         next();
     } else {
         res.status(404);
-        throw new Error("No es un admin");
     }
 
 }

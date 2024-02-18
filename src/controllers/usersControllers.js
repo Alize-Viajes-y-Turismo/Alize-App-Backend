@@ -1,16 +1,22 @@
-import { pool } from "../db.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken"
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { createAccesToken } = require("../libs/jwt.js"); 
 
-import { createAccesToken } from "../libs/jwt.js";
+const usersService = require("../services/usersService.js")
+const service = new usersService();
+
+
+
+
+
+
 
 const registerUser = async (req, res) => {
     const { name, password } = req.body
 
     try {
 
-        const [result] = await pool.query('SELECT * FROM users WHERE user_name = ?', [name]);
-        const user = result[0];
+        const user = await service.findOneName(name);
 
         //Verificar si el usuario ya existe
         if (!user) {
@@ -19,50 +25,23 @@ const registerUser = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            const [result] = await pool.query(`SELECT * FROM users WHERE user_name is null`);
-            const nullUser = result[0];
-
+            const nullUser = await service.findOneNull();
+        
             if (nullUser) {
 
-                await pool.query(`UPDATE users SET user_name = ?, user_password = ? WHERE user_id = ?`, [name, hashedPassword, nullUser.user_id]);
-
-                const [result] = await pool.query(`SELECT * FROM users WHERE user_id = ?`, [nullUser.user_id]);
-                const newUser = result[0];
-
-                //Enviar los datos del usuario al front
-
-                res.json({
-
-                    id: newUser.user_id,
-                    name: newUser.user_name,
-                    admin: newUser.user_admin,
-
-                });
+                await nullUser.service.update({ name, password: hashedPassword });
+                res.json({ success: true, data: res });
 
             } else {
 
-                //Crear usuario en la base de datos
-                await pool.query(`INSERT INTO users (user_name, user_password) VALUES (?, ?)`, [name, hashedPassword]);
-
-                const [result] = await pool.query(`SELECT * FROM users WHERE user_name = ?`, [name]);
-                const newUser = result[0];
-
-                //Enviar los datos del usuario como respuesta
-                res.json({
-
-                    id: newUser.user_id,
-                    name: newUser.user_name,
-                    admin: newUser.user_admin,
-
-                });
+                const res = await service.create({ name, password: hashedPassword })
+                res.json({ success: true, data: res });
 
             };
 
         } else {
             
-            return res.status(404).json({
-            message: "El usuario ya existe"
-            });
+            return res.status(404).json({ message: "El usuario ya existe" });
 
         }
     } catch (error) {
@@ -77,15 +56,13 @@ const loginUser = async (req, res) => {
     
     try {
 
-        //Verificar que el usuario existe
-        const [result] = await pool.query('SELECT * FROM users WHERE user_name = ?', [name]);  
-        const user = result[0];
+        const user = await service.findOneName(name);
 
         //Si el usuario existe y la password está bien, enviar datos
-        if (user && (await bcrypt.compare(password, user.user_password))) {
+        if (user && (await bcrypt.compare(password, user.password))) {
 
             //Generar token
-            const token = await createAccesToken(user.user_id);
+            const token = createAccesToken(user.id);
 
             res.cookie("token", token, {
                 sameSite: "none",
@@ -93,18 +70,11 @@ const loginUser = async (req, res) => {
                 httpOnly: false
             });
 
-            res.json({
+            res.json({ success: true, message: "Iniciaste sesión correctamente" });
 
-                id: user.user_id,
-                fullname: user.user_fullname,
-                image: user.user_image,
-                admin: user.user_admin,
-
-            });
         } else {
 
-            res.status(404);
-            throw new Error("El nombre o la contraseña son inválidos");
+            return res.status(404).json({ message: "El nombre o la contraseña son incorrectos" });
 
         }
 
@@ -118,16 +88,13 @@ const loginUser = async (req, res) => {
 
 const updatePassword = async (req, res) => {
     const { password, newPassword } = req.body
-    const id = req.user.user_id;
+    const id = req.user.id;
 
     try {
         
-        const [result] = await pool.query('SELECT * FROM users WHERE user_id = ?', [id]);  
-        const user = result[0];
+        const user = await service.findOneId(id);
         
-        const oldPassword = user.user_password;
-
-        console.log(password, oldPassword);
+        const oldPassword = user.password;
 
         //Verificar si el usuario ya existe
         if (user && await bcrypt.compare(password, oldPassword)) {
@@ -144,9 +111,7 @@ const updatePassword = async (req, res) => {
 
             } else {
 
-                return res.status(401).json({
-                    message: "Elige una contraseña distinta a la anterior"
-                    });
+                return res.status(401).json({ message: "Elige una contraseña distinta a la anterior" });
 
             };
 
@@ -164,28 +129,4 @@ const updatePassword = async (req, res) => {
     }
 };
 
-const verifyToken = async (req, res) => {
-    const {token} = req.cookies
-
-    if (!token) return res.status(401).json({ message: "No hay token"} );
-
-    jwt.verify(token, process.env.SECRET, async (err, user) => {
-    if (err) return res.status(401).json({ message: "El token no es válido" });
-
-    const [result] = await pool.query('SELECT * FROM users WHERE user_id = ?', [user.id]);  
-    const userFound = result[0];
-    
-    if (!userFound) return res.status(401).json({ message: "No se encontró el usuario" });
-    
-    return res.json({
-
-        id: userFound.user_id,
-        fullname: userFound.user_fullname,
-        image: userFound.user_image,
-        admin: userFound.user_admin,
-
-    });
-    })
-}
-
-export { registerUser, loginUser, updatePassword, updateProfile, deleteUser, verifyToken, getUsers };
+export { registerUser, loginUser, updatePassword };
