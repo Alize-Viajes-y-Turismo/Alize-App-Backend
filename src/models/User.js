@@ -1,10 +1,10 @@
 // Importamos la clase DataTypes de Sequelize
-const { DataTypes } = require('sequelize');
+const { DataTypes, Sequelize } = require('sequelize');
 
 // Exportamos una función que define el modelo de usuario
 module.exports = (sequelize) => {
   // Definimos el modelo de usuario
-  sequelize.define('User', {
+  const User = sequelize.define('User', {
     // Definición de las columnas
 
     // Columna de identificación única del usuario

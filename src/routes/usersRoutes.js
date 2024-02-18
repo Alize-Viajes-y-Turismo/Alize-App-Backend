@@ -1,31 +1,17 @@
-import { Router } from "express";
-import { loginUser, registerUser, updateProfile, deleteUser, verifyToken, updatePassword, getUsers } from "../controllers/usersControllers.js";
-import { protect, admin } from "../middlewares/validateToken.js";
-import { body } from "express-validator";
-
-const router = Router();
+const express = require("express");
+const router = express.Router();
+const usersController = require("../controllers/usersControllers.js");
+const verifyMiddleware = require("../middlewares/verifyMiddleware.js");
+const { body } = require("express-validator");
 
 //Rutas generales
-router.post("/users/login", loginUser);
-router.put("/users/profile", protect, updateProfile);
-router.put("/users/password", protect, updatePassword);
+router.post("/users/login", usersController.loginUser);
 
-//Rutas del administrador
+router.put("/users/password", verifyMiddleware.verifyToken, usersController.updatePassword);
+
 router.post("/users/register",
-
-body("name").isLength( {min: 8} ).withMessage("El nombre debe tener mínimo 8 carácteres"),
-
+body("name").isLength( {min: 6} ).withMessage("El nombre debe tener mínimo 6 carácteres"),
 body("password").isLength( {min: 8} ).withMessage("La contraseña debe tener mínimo 8 carácteres"),
+usersController.registerUser);
 
-protect, admin, registerUser);
-
-router.post("/users/login", loginUser);
-
-router.delete("/users/:id", protect, admin, deleteUser);
-
-router.get("/users", protect, admin, getUsers);
-
-//Rutas de verificación para el front
-router.get("/verify", verifyToken);
-
-export default router;
+module.exports = router ;

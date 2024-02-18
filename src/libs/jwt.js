@@ -1,10 +1,12 @@
-import jwt from "jsonwebtoken"
+const jwt = require("jsonwebtoken");
 
-export function createAccesToken(id){
+function createAccesToken(id){
 
     return jwt.sign( { id: id }, process.env.SECRET, {
             expiresIn: "1d",
     });
 
 };
+
+module.exports = { createAccesToken };
 

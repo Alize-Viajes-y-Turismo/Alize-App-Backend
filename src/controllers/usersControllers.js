@@ -1,9 +1,8 @@
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 const { createAccesToken } = require("../libs/jwt.js"); 
 
-const usersService = require("../services/usersService.js")
-const service = new usersService();
+const UsersService = require("../services/usersService.js")
+const service = new UsersService();
 
 
 
@@ -12,11 +11,11 @@ const service = new usersService();
 
 
 const registerUser = async (req, res) => {
-    const { name, password } = req.body
+    const { email, password } = req.body
 
     try {
 
-        const user = await service.findOneName(name);
+        const user = await service.findOneEmail(email);
 
         //Verificar si el usuario ya existe
         if (!user) {
@@ -29,13 +28,15 @@ const registerUser = async (req, res) => {
         
             if (nullUser) {
 
-                await nullUser.service.update({ name, password: hashedPassword });
-                res.json({ success: true, data: res });
+                const newUser = await nullUser.service.update({ email, password: hashedPassword });
+
+                return res.json({ success: true, data: newUser });
 
             } else {
 
-                const res = await service.create({ name, password: hashedPassword })
-                res.json({ success: true, data: res });
+                const newUser = await service.create({ email, password: hashedPassword })
+
+                return res.json({ success: true, data: newUser });
 
             };
 
@@ -46,17 +47,17 @@ const registerUser = async (req, res) => {
         }
     } catch (error) {
 
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
 
     }
 };
 
 const loginUser = async (req, res) => {
-    const {name, password} = req.body;
+    const {email, password} = req.body;
     
     try {
 
-        const user = await service.findOneName(name);
+        const user = await service.findOneEmail(email);
 
         //Si el usuario existe y la password está bien, enviar datos
         if (user && (await bcrypt.compare(password, user.password))) {
@@ -70,7 +71,7 @@ const loginUser = async (req, res) => {
                 httpOnly: false
             });
 
-            res.json({ success: true, message: "Iniciaste sesión correctamente" });
+            return res.json({ success: true, message: "Iniciaste sesión correctamente" });
 
         } else {
 
@@ -80,7 +81,7 @@ const loginUser = async (req, res) => {
 
     } catch (error) {
         
-        res.status(500).json({ message: error.message })
+        return res.status(500).json({ message: error.message })
 
     };
 
@@ -105,9 +106,9 @@ const updatePassword = async (req, res) => {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-            await pool.query(`UPDATE users SET user_password = ? WHERE user_id = ?`, [hashedPassword, id]);
+            await user.update({ password: hashedPassword });
 
-            res.json("La contraseña fue actualizada");
+            return res.json({ message: "Se actualizó la contraseña correctamente" });
 
             } else {
 
@@ -124,9 +125,9 @@ const updatePassword = async (req, res) => {
         }
     } catch (error) {
 
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
 
     }
 };
 
-export { registerUser, loginUser, updatePassword };
+module.exports = { registerUser, loginUser, updatePassword };

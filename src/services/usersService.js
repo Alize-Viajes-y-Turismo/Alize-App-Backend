@@ -1,4 +1,4 @@
-const { models } = require("../db");
+const { User } = require("../db");
 
 class UsersService {
     constructor () {}
@@ -7,28 +7,28 @@ class UsersService {
 
     async find() {
 
-        const res = await models.Person.findAll();
+        const res = await User.findAll();
         return res;
 
     }
 
     async findOneId(id) {
 
-        const res = await models.Person.findByPk(id);
+        const res = await User.findByPk(id);
         return res;
 
     }
 
-    async findOneName(name) {
+    async findOneEmail(email) {
 
-        const res = await models.Person.findOne({ where: { name } });
+        const res = await User.findOne({ where: { email } });
         return res;
 
     };
 
     async findOneNull() {
 
-        const res = await models.Person.findOne({ where: { name: null, password: null } });
+        const res = await User.findOne({ where: { email: null, password: null } });
         return res;
 
     };
@@ -38,41 +38,18 @@ class UsersService {
 
     async create(data) {
 
-        const model = await this.findOne({
-            // Opciones de búsqueda
-            where: {
-                // Utiliza la operación "OR" para buscar registros que cumplan con al menos una de las condiciones
-                [Sequelize.Op.and]: [
-                    // Condición: campo email es null
-                    { name: null},
-                        // Condición: campo password es null
-                    { surname: null },
-                        // Puedes agregar más condiciones aquí si necesitas buscar otros campos que puedan ser null
-                    { dni: null },
-                    { phone: null }
-                ]
-            }
-        });
-            if (model) {
+        const res = await User.create(data);
+        return res;
 
-                const res = await model.update(data);
-                return res;
-
-            }
-            else {
-
-                const res = await model.create(data);
-                return res;
-
-            }
     }
 
-    async update(id, data) {
+    async update(data) {
 
-        const model = await this.findOne(id);
-        const res = await model.update(data);
+        const res = await User.update(data);
         return res;
 
     }
 
 }
+
+module.exports = UsersService;
