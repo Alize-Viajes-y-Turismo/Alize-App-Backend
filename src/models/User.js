@@ -24,6 +24,10 @@ module.exports = (sequelize) => {
     password: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
+    token: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
     // Columna para la fecha de creación del usuario
     createdAt: {
       type: DataTypes.DATE,   // Tipo de datos: DATE
