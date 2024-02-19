@@ -24,6 +24,10 @@ module.exports = (sequelize) => {
     password: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     // Columna para la fecha de creación del usuario
     createdAt: {
       type: DataTypes.DATE,   // Tipo de datos: DATE
@@ -43,6 +47,6 @@ module.exports = (sequelize) => {
   //Relaciones
 
   User.associate = (models) => {
-    User.hasMany(models.Person, { as: "persons"});
+    User.hasMany(models.Passenger, { as: "passenger"});
   };
 };
