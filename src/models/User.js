@@ -43,6 +43,6 @@ module.exports = (sequelize) => {
   //Relaciones
 
   User.associate = (models) => {
-    User.hasOne(models.Person, { foreignKey: 'userId' });
+    User.hasMany(models.Person, { as: "persons"});
   };
 };

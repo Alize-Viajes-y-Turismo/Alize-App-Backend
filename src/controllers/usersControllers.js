@@ -30,11 +30,27 @@ const registerUser = async (req, res) => {
 
                 const newUser = await nullUser.service.update({ email, password: hashedPassword });
 
+                const token = createAccesToken(newUser.id);
+
+                res.cookie("token", token, {
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: false
+                });
+
                 return res.json({ success: true, data: newUser });
 
             } else {
 
                 const newUser = await service.create({ email, password: hashedPassword })
+
+                const token = createAccesToken(newUser.id);
+
+                res.cookie("token", token, {
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: false
+                });
 
                 return res.json({ success: true, data: newUser });
 
@@ -42,7 +58,7 @@ const registerUser = async (req, res) => {
 
         } else {
             
-            return res.status(404).json({ message: "El usuario ya existe" });
+            return res.status(400).json({ message: "El usuario ya existe" });
 
         }
     } catch (error) {
@@ -75,7 +91,7 @@ const loginUser = async (req, res) => {
 
         } else {
 
-            return res.status(404).json({ message: "El nombre o la contraseña son incorrectos" });
+            return res.status(400).json({ message: "El email o la contraseña son incorrectos" });
 
         }
 

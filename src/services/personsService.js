@@ -19,16 +19,9 @@ class PersonsService {
 
     }
 
-    async findOneEmail(email) {
-
-        const res = await User.findOne({ where: { email } });
-        return res;
-
-    };
-
     async findOneNull() {
 
-        const res = await User.findOne({ where: { email: null, password: null } });
+        const res = await User.findOne({ where: { name: null, surname: null, dni: null, phone: null, idUser: null } });
         return res;
 
     };

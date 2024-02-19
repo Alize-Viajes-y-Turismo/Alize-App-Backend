@@ -3,12 +3,17 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const usersRoutes = require('./routes/usersRoutes.js');
+const dotenv = require("dotenv");
 
 require('./db.js');
 
 const server = express();
 
 server.name = 'API';
+
+
+
+
 
 server.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 server.use(bodyParser.json({ limit: '50mb' }));
@@ -22,6 +27,13 @@ server.use((req, res, next) => {
   next();
 });
 server.use(express.json());
+dotenv.config();
+
+
+
+
+
+
 
 server.use('/api', usersRoutes);
 
