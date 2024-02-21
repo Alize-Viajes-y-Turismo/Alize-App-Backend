@@ -128,13 +128,56 @@ const updatePassword = async (req, res) => {
 
             } else {
 
-                return res.status(401).json({ message: "Elige una contraseña distinta a la anterior" });
+                return res.status(400).json({ message: "Elige una contraseña distinta a la anterior" });
 
             };
 
         } else {
             
-            return res.status(404).json({
+            return res.status(400).json({
+            message: "La contraseña es incorrecta"
+            });
+
+        }
+    } catch (error) {
+
+        return res.status(500).json({ message: error.message });
+
+    }
+};
+
+const recoverPassword = async (req, res) => {
+    const { password } = req.body
+    const id = req.user.id;
+
+    try {
+        
+        const user = await service.findOneId(id);
+        
+        const oldPassword = user.password;
+
+        //Verificar si el usuario ya existe
+        if (user && await bcrypt.compare(password, oldPassword)) {
+
+            if (!(await bcrypt.compare(newPassword, oldPassword))) {
+
+                // Hash contraseña
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+            await user.update({ password: hashedPassword });
+
+            return res.json({ message: "Se actualizó la contraseña correctamente" });
+
+            } else {
+
+                return res.status(400).json({ message: "Elige una contraseña distinta a la anterior" });
+
+            };
+
+        } else {
+            
+            return res.status(400).json({
             message: "La contraseña es incorrecta"
             });
 
