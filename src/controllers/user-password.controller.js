@@ -8,11 +8,7 @@ class UserPasswordController {
   async sendEmailToResetPassword(req, res) {
     try {
 
-// recibo un email del front
-
       const { email } = req.params;
-
-// verifico que este en la base de datos
 
       const user = await User.findOne({
         where: {
@@ -27,11 +23,10 @@ class UserPasswordController {
         });
       }
 
-// si coinciden busco el id del usuario
-
       let userPassword = await User.findOne({
         where: {
-          Id: id.getDataValue('id'),
+          userId: user.getDataValue('id'),
+          isUsed: false
         }
       });
 
@@ -43,8 +38,10 @@ class UserPasswordController {
       const token = generateRandomString(16);
 
       userPassword = new UserPassword({
+        userId: user.getDataValue('id'),
         email: email,
         token: token,
+        is_used: false
       });
 
       const data = {
@@ -56,10 +53,6 @@ class UserPasswordController {
 
       await sendEmail(email, 'Recuperar contraseña', emailHTMLTemplate);
       await userPassword.save();
-
-
-      // si todo salio bien, le llegaria un correo para recuperar contraseña
-
 
       res.json({
         success: true,
@@ -77,15 +70,11 @@ class UserPasswordController {
     }
   }
 
-// restablecer contraseña
-
   async resetPassword(req, res) {
     try {
       
       const { token } = req.params;
       const { password, password2 } = req.body;
-
-// si el token coincide con el que le llego al correo le dejara cambiar la contraseña
 
       const userPassword = await User.findOne({
         where: {
@@ -120,8 +109,6 @@ class UserPasswordController {
       const user = await User.findByPk(userPassword.getDataValue('userId'));
       const passwordHash = generateHash(password);
       user.setDataValue('password', passwordHash);
-
-// si todo salio bien se guardara la nueva contraseña
 
       await user.save();
       res.json({

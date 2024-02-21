@@ -28,6 +28,16 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: false
     },
+    isUsed: {
+      type: DataTypes.BOOLEAN,
+      field: 'is_used',
+      defaultValue: false,
+      allowNull: false
+    },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     // Columna para la fecha de creación del usuario
     createdAt: {
       type: DataTypes.DATE,   // Tipo de datos: DATE
@@ -47,6 +57,6 @@ module.exports = (sequelize) => {
   //Relaciones
 
   User.associate = (models) => {
-    User.hasOne(models.Person, { foreignKey: 'userId' });
+    User.hasMany(models.Passenger, { as: "passenger"});
   };
 };

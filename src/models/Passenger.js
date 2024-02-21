@@ -5,7 +5,7 @@ const { DataTypes, Sequelize } = require('sequelize');
 module.exports = (sequelize) => {
   
     // Definimos el modelo de Person
-  const Person = sequelize.define('Person', {
+  const Passenger = sequelize.define('Passenger', {
     // Definición de las columnas
 
     // Columna de identificación única de la persona
@@ -29,13 +29,20 @@ module.exports = (sequelize) => {
     // Columna para el teléfono de la persona
     phone: {
       type: DataTypes.STRING // Tipo de datos: STRING
-    }
+    },
     // Columna para el DNI (Documento Nacional de Identidad) de la persona
+    userId: {
+      allowNull: false,       // No se permite que sea nulo
+      foreignKey: true, 
+      type: DataTypes.INTEGER, // Tipo de datos: INTEGER
+      unique: true  
+    }
 
   });
 
   //Relaciones
-  Person.associate = (models) => {
-    Person.belongsTo(models.User, { foreignKey: 'userId' });
+  Passenger.associate = (models) => {
+    Passenger.belongsTo(models.User, { foreignKey: 'userId' });
+    
   };
 };
