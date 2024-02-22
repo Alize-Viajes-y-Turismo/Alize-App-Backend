@@ -1,8 +1,8 @@
 const mail = {
-    host: 'mail.yourdomain.com',
-    port: 2525,
-    user: 'user@yourdomain.com',
-    pass: 'email-password'
+    host: 'smtp.office365.com',
+    port: 587,
+    user: 'riverista@hotmail.es',
+    pass: 'Tonchy123'
   }
   
   module.exports = {

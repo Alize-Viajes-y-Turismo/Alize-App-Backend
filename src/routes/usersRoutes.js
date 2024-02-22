@@ -12,4 +12,6 @@ router.put("/users/password", [ updatePasswordValidator(), validator ], verifyMi
 
 router.post("/users/register", [registerUserValidator(), validator], usersController.registerUser);
 
+router.get("/verify", verifyMiddleware.verifyToken);
+
 module.exports = router;

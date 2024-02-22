@@ -27,12 +27,13 @@ server.use((req, res, next) => {
 });
 server.use(express.json());
 dotenv.config();
+server.use(express.static("./public"));
 
-
+// Rutas users
 server.use('/api', usersRoutes);
-server.use('/user-password', UserPasswordRoutes);
-// Rutas
-server.use("/api", usersRoutes);
+server.use('/api', UserPasswordRoutes);
+
+// Rutas passengers
 server.use("/api", passengersRoutes);
 
 // Middleware para manejo de errores
