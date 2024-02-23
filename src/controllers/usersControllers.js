@@ -28,7 +28,7 @@ const registerUser = async (req, res) => {
         
             if (nullUser) {
 
-                const newUser = await nullUser.service.update({ email, password: hashedPassword });
+                const newUser = await nullUser.update({ email, password: hashedPassword });
 
                 const token = createAccesToken(newUser.id);
 
@@ -38,7 +38,7 @@ const registerUser = async (req, res) => {
                     httpOnly: false
                 });
 
-                return res.json({ success: true, data: newUser });
+                return res.json({ data: newUser });
 
             } else {
 
@@ -52,7 +52,7 @@ const registerUser = async (req, res) => {
                     httpOnly: false
                 });
 
-                return res.json({ success: true, data: newUser });
+                return res.json({ data: newUser });
 
             };
 
@@ -64,6 +64,34 @@ const registerUser = async (req, res) => {
     } catch (error) {
 
         return res.status(500).json({ message: error.message });
+
+    }
+};
+
+const deleteUser = async (req, res) => {
+
+    //CONSULTAR SI TAMBIÉN ELIMINARÁ LOS PASAJES TOMADOS. EN CASO DE QUE EL PASAJE NO SE PUEDA ELIMINAR POR FUERA DE TÉRMINO QUE SE HARÁ.
+
+    const id = req.user.id;
+
+    try {
+    
+        const user = await service.findOneId(id);
+
+        if (user) {
+
+            await user.update({ email: null, password: null});
+            res.json({ message: "El usuario fué eliminado" });
+        
+        }
+        else {
+
+            res.status(400).json({ message: "El usuario no existe" });
+
+        }
+    } catch (error) {
+        
+        res.status(500).json({ message: error.message });
 
     }
 };
@@ -87,7 +115,7 @@ const loginUser = async (req, res) => {
                 httpOnly: false
             });
 
-            return res.json({ success: true, message: "Iniciaste sesión correctamente" });
+            return res.json({ message: "Iniciaste sesión correctamente" });
 
         } else {
 
@@ -101,6 +129,20 @@ const loginUser = async (req, res) => {
 
     };
 
+};
+
+const logoutUser = async (req, res) => {
+    try {
+        // Limpiar la cookie del token de autenticación
+        res.clearCookie('token', { sameSite: 'none', secure: true });
+        
+        // Enviar una respuesta al cliente confirmando que la sesión ha sido cerrada correctamente
+        return res.json({ message: "Sesión cerrada correctamente" });
+
+    } catch (error) {
+        // Manejar cualquier error que ocurra durante el proceso de cierre de sesión
+        return res.status(500).json({ message: error.message });
+    }
 };
 
 const updatePassword = async (req, res) => {
@@ -146,4 +188,4 @@ const updatePassword = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, updatePassword };
+module.exports = { registerUser, loginUser, updatePassword, logoutUser, deleteUser };

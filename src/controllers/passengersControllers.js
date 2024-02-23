@@ -1,7 +1,4 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-
-const PassengersService = require("../services/usersService.js")
+const PassengersService = require("../services/passengersService.js")
 const service = new PassengersService();
 
 
@@ -10,7 +7,7 @@ const registerPassenger = async (req, res) => {
 
     const { name, surname, dni, phone } = req.body;
 
-    const idUser = req.user.id;
+    const userId = req.user.id;
 
     try {
 
@@ -20,13 +17,13 @@ const registerPassenger = async (req, res) => {
         
         if (passengerNull) {
 
-            const newPassenger = await passengerNull.service.update({ name, surname, dni, phone, idUser });
+            const newPassenger = await passengerNull.service.update({ name, surname, dni, phone, userId });
 
             return res.json({ success: true, data: newPassenger });
 
         } else {
 
-            const newPassenger = await service.create({ name, surname, dni, phone, idUser })
+            const newPassenger = await service.create({ name, surname, dni, phone, userId })
 
             return res.json({ success: true, data: newPassenger });
 

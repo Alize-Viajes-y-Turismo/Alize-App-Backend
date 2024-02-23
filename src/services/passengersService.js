@@ -21,7 +21,7 @@ class PassengersService {
 
     async findOneNull() {
 
-        const res = await Passenger.findOne({ where: { name: null, surname: null, dni: null, phone: null, idUser: null } });
+        const res = await Passenger.findOne({ where: { name: null, surname: null, dni: null, phone: null, userId: null } });
         return res;
 
     };

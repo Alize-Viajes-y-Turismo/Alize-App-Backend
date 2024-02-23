@@ -4,7 +4,7 @@ const usersService = require("../services/usersService.js")
 const service = new usersService();
 
 const verifyToken = async (req, res, next) => {
-    const {token} = req.cookies
+    const { token } = req.cookies
 
     if (!token) {
 
