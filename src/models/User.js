@@ -28,6 +28,12 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    token:{
+      type: DataTypes.STRING,
+    },
+    resetPasswordExpires :{
+      type: DataTypes.STRING,
+    },
     // Columna para la fecha de creación del usuario
     createdAt: {
       type: DataTypes.DATE,   // Tipo de datos: DATE

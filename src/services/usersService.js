@@ -26,6 +26,13 @@ class UsersService {
 
     };
 
+    async findOneToken(Token) {
+
+        const res = await User.findOne({ where: { Token } });
+        return res;
+
+    };
+
     async findOneNull() {
 
         const res = await User.findOne({ where: { email: null, password: null } });

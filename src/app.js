@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const usersRoutes = require("./routes/usersRoutes.js");
 const passengersRoutes = require("./routes/passengerRoutes.js");
+const resetPasword = require('./routes/resetPasword.js')
+
 const dotenv = require("dotenv");
 
 require("./db.js");
@@ -29,6 +31,8 @@ dotenv.config();
 // Rutas
 server.use("/api", usersRoutes);
 server.use("/api", passengersRoutes);
+server.use("/api", resetPasword);
+
 
 // Middleware para manejo de errores
 server.use((err, req, res, next) => { 
