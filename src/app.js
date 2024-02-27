@@ -6,6 +6,7 @@ const usersRoutes = require('./routes/usersRoutes.js');
 const emailResetPasswordRoutes = require('./routes/emailResetPasswordRoutes.js');
 const passengersRoutes = require("./routes/passengerRoutes.js");
 const dotenv = require("dotenv");
+const cors = require('cors');
 
 
 require("./db.js");
@@ -27,7 +28,7 @@ server.use((req, res, next) => {
 });
 server.use(express.json());
 dotenv.config();
-server.use(express.static("./public"));
+server.use(cors());
 
 // Rutas users
 server.use('/api', usersRoutes);

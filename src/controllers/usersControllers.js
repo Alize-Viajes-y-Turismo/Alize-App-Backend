@@ -11,7 +11,8 @@ const service = new UsersService();
 
 
 const registerUser = async (req, res) => {
-    const { email, password } = req.body
+    
+    const { email, password } = req.body;
 
     try {
 
@@ -32,13 +33,8 @@ const registerUser = async (req, res) => {
 
                 const token = createAccesToken(newUser.id);
 
-                res.cookie("token", token, {
-                    sameSite: "none",
-                    secure: true,
-                    httpOnly: false
-                });
+                res.json({ data: newUser, token: token });
 
-                return res.json({ data: newUser });
 
             } else {
 
@@ -46,13 +42,9 @@ const registerUser = async (req, res) => {
 
                 const token = createAccesToken(newUser.id);
 
-                res.cookie("token", token, {
-                    sameSite: "none",
-                    secure: true,
-                    httpOnly: false
-                });
+                req.user
 
-                return res.json({ data: newUser });
+                res.json({ message: "Te registraste correctamente", data: newUser, token: token });
 
             };
 
@@ -81,17 +73,17 @@ const deleteUser = async (req, res) => {
         if (user) {
 
             await user.update({ email: null, password: null});
-            res.json({ message: "El usuario fué eliminado" });
+            return res.json({ message: "El usuario fué eliminado" });
         
         }
         else {
 
-            res.status(400).json({ message: "El usuario no existe" });
+            return res.status(400).json({ message: "El usuario no existe" });
 
         }
     } catch (error) {
         
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
 
     }
 };
@@ -109,13 +101,7 @@ const loginUser = async (req, res) => {
             //Generar token
             const token = createAccesToken(user.id);
 
-            res.cookie("token", token, {
-                sameSite: "none",
-                secure: true,
-                httpOnly: false
-            });
-
-            return res.json({ message: "Iniciaste sesión correctamente" });
+            return res.json({ message: "Iniciaste sesión correctamente", data: user, token: token });
 
         } else {
 
@@ -137,7 +123,7 @@ const logoutUser = async (req, res) => {
         res.clearCookie('token', { sameSite: 'none', secure: true });
         
         // Enviar una respuesta al cliente confirmando que la sesión ha sido cerrada correctamente
-        return res.json({ message: "Sesión cerrada correctamente" });
+        return res.json({ message: "Cerraste sesión correctamente" });
 
     } catch (error) {
         // Manejar cualquier error que ocurra durante el proceso de cierre de sesión

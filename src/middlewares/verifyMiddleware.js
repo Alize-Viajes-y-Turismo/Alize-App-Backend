@@ -4,7 +4,7 @@ const usersService = require("../services/usersService.js")
 const service = new usersService();
 
 const verifyToken = async (req, res, next) => {
-    const { token } = req.cookies
+    const { token } = req.body || req.user
 
     if (!token) {
 
@@ -20,6 +20,8 @@ const verifyToken = async (req, res, next) => {
         if (!userFound) return res.status(401).json({ message: "No se encontró el usuario" });
         
         req.user = userFound
+
+        res.json({ message: "Verificación exitosa", data: newUser });
 
         next();
         })
