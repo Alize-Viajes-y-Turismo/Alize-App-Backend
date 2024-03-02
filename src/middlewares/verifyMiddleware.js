@@ -1,10 +1,9 @@
 const jwt = require("jsonwebtoken");
-
-const usersService = require("../services/usersService.js")
-const service = new usersService();
+const UsersService = require("../services/usersService.js")
+const service = new UsersService();
 
 const verifyToken = async (req, res, next) => {
-    const { token } = req.body || req.user
+    const {token} = req.cookies
 
     if (!token) {
 
@@ -21,11 +20,39 @@ const verifyToken = async (req, res, next) => {
         
         req.user = userFound
 
-        res.json({ message: "Verificación exitosa", data: newUser });
-
         next();
         })
     }
 }
 
-module.exports = { verifyToken };
+const verifyAdmin = async (req, res, next) => {
+
+    const { token } = req.cookies
+
+    try {
+
+        jwt.verify(token, process.env.SECRET, async (err, user) => {
+
+            const userFound = await service.findOneId(user.id);  
+
+            if (err) return res.status(401).json({ message: "El token no es válido" });
+
+            if (userFound.user_admin) {
+
+                next()
+        
+            }   else {
+        
+                return res.status(400).json({ message: "No eres administrador" })
+        
+            }
+
+            });
+    }
+
+    catch (error) {
+
+    }
+}
+
+module.exports = { verifyToken, verifyAdmin };

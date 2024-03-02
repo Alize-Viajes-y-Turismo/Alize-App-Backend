@@ -33,7 +33,13 @@ const registerUser = async (req, res) => {
 
                 const token = createAccesToken(newUser.id);
 
-                res.json({ data: newUser, token: token });
+                res.cookie("token", token, {
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: false
+                });
+
+                return res.json({ message: "Iniciaste sesión correctamente", data: {id: newUser.id, email: newUser.email}, token: token });
 
 
             } else {
@@ -42,10 +48,14 @@ const registerUser = async (req, res) => {
 
                 const token = createAccesToken(newUser.id);
 
-                req.user
+                res.cookie("token", token, {
+                    sameSite: "none",
+                    secure: true,
+                    httpOnly: false
+                });
 
-                res.json({ message: "Te registraste correctamente", data: newUser, token: token });
-
+                return res.json({ message: "Iniciaste sesión correctamente", data: {id: newUser.id, email: newUser.email}, token: token });
+            
             };
 
         } else {
@@ -64,16 +74,16 @@ const deleteUser = async (req, res) => {
 
     //CONSULTAR SI TAMBIÉN ELIMINARÁ LOS PASAJES TOMADOS. EN CASO DE QUE EL PASAJE NO SE PUEDA ELIMINAR POR FUERA DE TÉRMINO QUE SE HARÁ.
 
-    const id = req.user.id;
+    const email = req.user.email;
 
     try {
     
-        const user = await service.findOneId(id);
+        const user = await service.findOneEmail(email);
 
         if (user) {
 
             await user.update({ email: null, password: null});
-            return res.json({ message: "El usuario fué eliminado" });
+            return res.json({ message: "Cuenta eliminada correctamente" });
         
         }
         else {
@@ -89,6 +99,7 @@ const deleteUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
+
     const {email, password} = req.body;
     
     try {
@@ -101,7 +112,13 @@ const loginUser = async (req, res) => {
             //Generar token
             const token = createAccesToken(user.id);
 
-            return res.json({ message: "Iniciaste sesión correctamente", data: user, token: token });
+            res.cookie("token", token, {
+                sameSite: "none",
+                secure: true,
+                httpOnly: false
+            });
+
+            return res.json({ message: "Iniciaste sesión correctamente", data: {id: user.id, email: user.email}, token: token });
 
         } else {
 
@@ -118,8 +135,7 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-    try {
-        // Limpiar la cookie del token de autenticación
+    try {        // Limpiar la cookie del token de autenticación
         res.clearCookie('token', { sameSite: 'none', secure: true });
         
         // Enviar una respuesta al cliente confirmando que la sesión ha sido cerrada correctamente
@@ -132,6 +148,7 @@ const logoutUser = async (req, res) => {
 };
 
 const updatePassword = async (req, res) => {
+
     const { password, newPassword } = req.body
     const id = req.user.id;
 
@@ -163,7 +180,9 @@ const updatePassword = async (req, res) => {
         } else {
             
             return res.status(404).json({
+
             message: "La contraseña es incorrecta"
+
             });
 
         }

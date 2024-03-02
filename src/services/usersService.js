@@ -17,7 +17,7 @@ class UsersService {
     async findOneId(id) {
 
         const res = await User.findByPk(id, {
-            attributes: ['id', 'email', 'isAdmin']
+            attributes: ['id', 'email', 'isAdmin', 'password']
         });
         return res;
 

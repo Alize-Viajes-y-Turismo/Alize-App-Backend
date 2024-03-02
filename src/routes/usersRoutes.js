@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const usersControllers = require("../controllers/usersControllers.js");
 const verifyMiddleware = require("../middlewares/verifyMiddleware.js");
+const navigationControllers = require("../controllers/navigationControllers.js");
 const { registerUserValidator, loginUserValidator, updatePasswordValidator } = require("../validators/usersValidator.js");
 const { validator } = require("../middlewares/validator.js");
 
@@ -14,7 +15,7 @@ router.get("/users/logout", verifyMiddleware.verifyToken, usersControllers.logou
 
 //Update password
 
-router.put("/users/password", [ updatePasswordValidator(), validator ], usersControllers.updatePassword);
+router.put("/users/password", [ updatePasswordValidator(), validator ], verifyMiddleware.verifyToken, usersControllers.updatePassword);
 
 //Register
 
@@ -24,6 +25,6 @@ router.delete("/users/delete", verifyMiddleware.verifyToken, usersControllers.de
 
 //Verificación de cookie
 
-router.get("/verify", verifyMiddleware.verifyToken);
+router.post("/verify", navigationControllers.verifyTokenNavigation);
 
 module.exports = router;
