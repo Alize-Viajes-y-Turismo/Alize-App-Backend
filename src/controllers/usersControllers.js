@@ -4,12 +4,6 @@ const { createAccesToken } = require("../libs/jwt.js");
 const UsersService = require("../services/usersService.js")
 const service = new UsersService();
 
-
-
-
-
-
-
 const registerUser = async (req, res) => {
     
     const { email, password } = req.body;

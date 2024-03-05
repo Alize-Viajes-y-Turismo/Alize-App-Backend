@@ -9,6 +9,8 @@ const registerPassenger = async (req, res) => {
 
     const userId = req.user.id;
 
+    const travelId = req.body.id;
+
     try {
 
         const passengerNull = await service.findOneNull();

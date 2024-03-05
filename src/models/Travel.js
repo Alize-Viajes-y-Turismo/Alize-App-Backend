@@ -20,26 +20,21 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
     // Columna para el apellido de la persona
-    surname: {
+    destiny: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
-    dni: {
+    date1: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
     // Columna para el teléfono de la persona
-    phone: {
+    date2: {
       type: DataTypes.STRING // Tipo de datos: STRING
     },
     // Columna para el DNI (Documento Nacional de Identidad) de la persona
-    userId: {
-      allowNull: false,       // No se permite que sea nulo
-      foreignKey: true, 
-      type: DataTypes.INTEGER, // Tipo de datos: INTEGER
-      unique: true  
-    }
-
   });
 
-  //Relaciones
+  Travel.associate = (models) => {
+    Travel.hasMany(models.Passenger, { as: "passenger"});
+  };
 
 };

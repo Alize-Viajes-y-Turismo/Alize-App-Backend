@@ -1,5 +1,6 @@
 // Importamos la clase DataTypes de Sequelize
 const { DataTypes, Sequelize } = require('sequelize');
+const Travel = require('./Travel');
 
 // Exportamos una función que define el modelo de usuario
 module.exports = (sequelize) => {
@@ -24,6 +25,7 @@ module.exports = (sequelize) => {
     surname: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
+    // Columna para el DNI (Documento Nacional de Identidad) de la persona
     dni: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
@@ -31,19 +33,42 @@ module.exports = (sequelize) => {
     phone: {
       type: DataTypes.STRING // Tipo de datos: STRING
     },
-    // Columna para el DNI (Documento Nacional de Identidad) de la persona
+    // Columna para indicar si el pasajero tiene billete de ida y vuelta
+    return: {
+      type: DataTypes.BOOLEAN// Tipo de datos: BOOLEAN
+    },
+    // Columna para el tipo de asiento reservado por el pasajero
+    seatType: {
+      type: DataTypes.STRING // Tipo de datos: STRING
+    },
+    // Columna para la forma de pago elegida por el pasajero
+    wayToPay: {
+      type: DataTypes.STRING // Tipo de datos: STRING
+    },
+    // Clave foránea que vincula este pasajero con un usuario en otra tabla
     userId: {
       allowNull: false,       // No se permite que sea nulo
-      foreignKey: true, 
+      foreignKey: true,       // Indica que es una clave foránea
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
-      unique: true  
+      unique: true            // Debe ser único
+    },
+
+    travelId: {
+      allowNull: false,       // No se permite que sea nulo
+      foreignKey: true,       // Indica que es una clave foránea
+      type: DataTypes.INTEGER, // Tipo de datos: INTEGER
+      unique: true            // Debe ser único
     }
 
   });
 
-  //Relaciones
+  // Definimos relaciones
   Passenger.associate = (models) => {
+    // Establecemos la relación de pertenencia entre Passenger y User
     Passenger.belongsTo(models.User, { foreignKey: 'userId' });
+
+    Passenger.belongsTo(models.Travel, { foreignKey: 'travelId' });
     
   };
+
 };

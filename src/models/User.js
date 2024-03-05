@@ -47,7 +47,9 @@ module.exports = (sequelize) => {
   //Relaciones
 
   User.associate = (models) => {
+
     User.hasMany(models.Passenger, { as: "passenger"});
+    
   };
 
 
