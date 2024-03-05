@@ -1,6 +1,5 @@
 // Importamos la clase DataTypes de Sequelize
 const { DataTypes, Sequelize } = require('sequelize');
-const Travel = require('./Travel');
 
 // Exportamos una función que define el modelo de usuario
 module.exports = (sequelize) => {
@@ -34,7 +33,7 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING // Tipo de datos: STRING
     },
     // Columna para indicar si el pasajero tiene billete de ida y vuelta
-    return: {
+    returnOrigin: {
       type: DataTypes.BOOLEAN// Tipo de datos: BOOLEAN
     },
     // Columna para el tipo de asiento reservado por el pasajero
@@ -58,6 +57,19 @@ module.exports = (sequelize) => {
       foreignKey: true,       // Indica que es una clave foránea
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
       unique: true            // Debe ser único
+    },
+    createdAt: {
+      type: DataTypes.DATE,   // Tipo de datos: DATE
+      allowNull: false,       // No se permite que sea nulo
+      // Establece el valor por defecto como la fecha y hora actual
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    // Columna para la fecha de actualización del usuario
+    updatedAt: {
+      type: DataTypes.DATE,   // Tipo de datos: DATE
+      allowNull: false,       // No se permite que sea nulo
+      // Establece el valor por defecto como la fecha y hora actual
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
     }
 
   });

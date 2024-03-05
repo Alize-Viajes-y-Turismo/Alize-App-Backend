@@ -31,10 +31,25 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING // Tipo de datos: STRING
     },
     // Columna para el DNI (Documento Nacional de Identidad) de la persona
+    createdAt: {
+      type: DataTypes.DATE,   // Tipo de datos: DATE
+      allowNull: false,       // No se permite que sea nulo
+      // Establece el valor por defecto como la fecha y hora actual
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    // Columna para la fecha de actualización del usuario
+    updatedAt: {
+      type: DataTypes.DATE,   // Tipo de datos: DATE
+      allowNull: false,       // No se permite que sea nulo
+      // Establece el valor por defecto como la fecha y hora actual
+      defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+    }
   });
 
   Travel.associate = (models) => {
+
     Travel.hasMany(models.Passenger, { as: "passenger"});
+    
   };
 
 };

@@ -6,7 +6,7 @@ class PassengersService {
     async find() {
 
         const res = await Passenger.findAll({
-            attributes: ['id', 'email', 'isAdmin']
+            attributes: ['id', 'name', 'surname', "dni", "phone", "return", "seatType", "wayToPay"]
         });
         return res;
 
