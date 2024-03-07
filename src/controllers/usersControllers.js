@@ -61,7 +61,7 @@ const resetPassword = async (req, res) => {
 
         jwt.verify(token, process.env.SECRET, async (err, email) => {
             
-            const userFound = await service.findOneEmail(email); 
+            const userFound = await service.findOneEmail(email.email); 
             
              if (!userFound) {
                 return res.status(404).json({ error: 'Usuario no encontrado' });
