@@ -8,5 +8,13 @@ function createAccesToken(id){
 
 };
 
-module.exports = { createAccesToken };
+function createAccesTokenSendEmail(email){
+    
+    return jwt.sign( { email: email }, process.env.SECRET, {
+            expiresIn: "10m",
+    });
+
+};
+
+module.exports = { createAccesToken, createAccesTokenSendEmail };
 

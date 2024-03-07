@@ -27,4 +27,13 @@ router.delete("/users/delete", verifyMiddleware.verifyToken, usersControllers.de
 
 router.post("/verify", navigationControllers.verifyTokenNavigation);
 
+
+//Recuperar contraseña
+
+router.post('/sendEmail', usersControllers.sendEmail )
+
+router.post('/resetPassword/:token', usersControllers.resetPassword )
+
+
+
 module.exports = router;

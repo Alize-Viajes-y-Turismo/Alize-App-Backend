@@ -1,8 +1,104 @@
+const jwt = require("jsonwebtoken");
+const transporter = require("../libs/nodemailer.js");
 const bcrypt = require("bcrypt");
-const { createAccesToken } = require("../libs/jwt.js"); 
-
+const { createAccesToken, createAccesTokenSendEmail } = require("../libs/jwt.js"); 
 const UsersService = require("../services/usersService.js")
 const service = new UsersService();
+
+// Generar y almacenar tokens de restablecimiento de contraseña
+const sendEmail = async (req, res) => {
+
+    const { email } = req.body;
+    const userFound = await service.findOneEmail(email);
+
+    if (!userFound) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const token = createAccesTokenSendEmail(email);
+
+    user.resetPasswordToken = token;
+
+    await user.save();
+
+    // Enviar correo electrónico de restablecimiento de contraseña
+    const mailOptions = {
+        from: 'riverista@hotmail.es',
+        to: email,
+        subject: 'Restablecer contraseña',
+        text: `Para restablecer tu contraseña, haz clic en el siguiente enlace: http://tuapp.com/reset-password/${token}`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+        } else {
+            console.log('Correo electrónico enviado: ' + info.response);
+            res.status(200).json({ message: 'Correo electrónico enviado con éxito' });
+        }
+    });
+};
+
+
+const resetPassword = async (req, res) => {
+
+    const { password } = req.body;
+    const { token } = req.params;
+
+    try {
+        // Buscar el token en la base de datos
+        const userFound = await service.findOneToken(token);
+
+        // Verificar si el token existe
+        if (!userFound.dataValues.resetPasswordToken) {
+            return res.status(404).json({ error: 'Token inválido o expirado' });
+        }
+
+        // Generar el hash de la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        jwt.verify(token, process.env.SECRET, async (err, email) => {
+            
+            const user = await service.findOneEmail(email.email); 
+            
+             if (!user) {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+             }
+
+             user.password = hashedPassword;
+
+            await user.save();
+
+            });
+
+        // Responder con un mensaje de éxito
+        res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const registerUser = async (req, res) => {
     
@@ -187,4 +283,4 @@ const updatePassword = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, updatePassword, logoutUser, deleteUser };
+module.exports = { registerUser, loginUser, updatePassword, logoutUser, deleteUser, sendEmail, resetPassword };
