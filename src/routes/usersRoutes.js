@@ -30,9 +30,9 @@ router.post("/verify", navigationControllers.verifyTokenNavigation);
 
 //Recuperar contraseña
 
-router.post('/sendEmail', usersControllers.sendEmail )
+router.post('/sendEmail', usersControllers.sendEmail);
 
-router.post('/resetPassword/:token', usersControllers.resetPassword )
+router.post('/resetPassword/:token', usersControllers.resetPassword);
 
 
 

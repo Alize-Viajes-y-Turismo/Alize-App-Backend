@@ -3,13 +3,11 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const usersRoutes = require('./routes/usersRoutes.js');
-const emailResetPasswordRoutes = require('./routes/emailResetPasswordRoutes.js');
 const passengersRoutes = require("./routes/passengerRoutes.js");
 const dotenv = require("dotenv");
 const cors = require('cors');
 
 
-require("./db.js");
 
 const server = express();
 
@@ -31,7 +29,6 @@ server.use(cookieParser());
 
 // Rutas users
 server.use('/api', usersRoutes);
-server.use('/api', emailResetPasswordRoutes);
 
 // Rutas passengers
 server.use("/api", passengersRoutes);
