@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
-const transporter = require("../libs/nodemailer.js");
 const bcrypt = require("bcrypt");
 const { createAccesToken, createAccesTokenSendEmail } = require("../libs/jwt.js"); 
+const transporter = require("../libs/nodemailer.js");
 const UsersService = require("../services/usersService.js")
 const service = new UsersService();
 
@@ -17,9 +17,9 @@ const sendEmail = async (req, res) => {
 
     const token = createAccesTokenSendEmail(email);
 
-    user.resetPasswordToken = token;
+    userFound.resetPasswordToken = token;
 
-    await user.save();
+    await userFound.save();
 
     // Enviar correo electrónico de restablecimiento de contraseña
     const mailOptions = {
@@ -61,15 +61,15 @@ const resetPassword = async (req, res) => {
 
         jwt.verify(token, process.env.SECRET, async (err, email) => {
             
-            const user = await service.findOneEmail(email.email); 
+            const userFound = await service.findOneEmail(email.email); 
             
-             if (!user) {
+             if (!userFound) {
                 return res.status(404).json({ error: 'Usuario no encontrado' });
              }
 
-             user.password = hashedPassword;
+             userFound.password = hashedPassword;
 
-            await user.save();
+            await userFound.save();
 
             });
 

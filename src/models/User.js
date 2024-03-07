@@ -28,6 +28,9 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    resetPasswordToken:{
+      type: DataTypes.STRING,
+    },
     // Columna para la fecha de creación del usuario
     createdAt: {
       type: DataTypes.DATE,   // Tipo de datos: DATE
@@ -51,45 +54,5 @@ module.exports = (sequelize) => {
     User.hasMany(models.Passenger, { as: "passenger"});
     
   };
-
-
-  // Definimos el modelo de usuario
-  const UserPassword = sequelize.define('UserPassword', {
-
-  id: {
-    primaryKey: true,
-    autoIncrement: true,
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    unique: true
-  },
-  userId: {
-    type: DataTypes.INTEGER,
-    field: 'user_id',
-    allowNull: false
-  },
-  email: {
-    type: DataTypes.STRING,
-    unique: true,
-    allowNull: false
-  },
-  resetPasswordToken:{
-    type: DataTypes.STRING,
-  },
-  isUsed: {
-    type: DataTypes.BOOLEAN,
-    field: 'is_used',
-    defaultValue: false,
-    allowNull: false
-  }
-}, {
-  sequelize,
-  tableName: 'tb_user_password',
-  modelName: 'UserPassword'
-});
-
-User.hasMany(UserPassword, {
-  foreignKey: 'user_id'
-});
 
 };
