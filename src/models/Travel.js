@@ -3,35 +3,34 @@ const { DataTypes, Sequelize } = require('sequelize');
 
 // Exportamos una función que define el modelo de usuario
 module.exports = (sequelize) => {
-  // Definimos el modelo de usuario
-  const User = sequelize.define('User', {
+  
+    // Definimos el modelo de Person
+  const Travel = sequelize.define('Travel', {
     // Definición de las columnas
 
-    // Columna de identificación única del usuario
+    // Columna de identificación única de la persona
     id: {
-      primaryKey: true,       // Es la clave primaria
       allowNull: false,       // No se permite que sea nulo
-      autoIncrement: true,    // Se incrementa automáticamente
+      primaryKey: true,       // Es la clave primaria
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
       unique: true            // Debe ser único
     },
-    // Columna para el correo electrónico del usuario
-    email: {
-      type: DataTypes.STRING, // Tipo de datos: STRING
-      unique: true            // Asegura que el email sea único
-    },
-    // Columna para la contraseña del usuario
-    password: {
+    // Columna para el nombre de la persona
+    origin: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
-    isAdmin: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    // Columna para el apellido de la persona
+    destiny: {
+      type: DataTypes.STRING, // Tipo de datos: STRING
     },
-    resetPasswordToken:{
-      type: DataTypes.STRING,
+    date1: {
+      type: DataTypes.STRING, // Tipo de datos: STRING
     },
-    // Columna para la fecha de creación del usuario
+    // Columna para el teléfono de la persona
+    date2: {
+      type: DataTypes.STRING // Tipo de datos: STRING
+    },
+    // Columna para el DNI (Documento Nacional de Identidad) de la persona
     createdAt: {
       type: DataTypes.DATE,   // Tipo de datos: DATE
       allowNull: false,       // No se permite que sea nulo
@@ -47,11 +46,9 @@ module.exports = (sequelize) => {
     }
   });
 
-  //Relaciones
+  Travel.associate = (models) => {
 
-  User.associate = (models) => {
-
-    User.hasMany(models.Passenger, { as: "passenger"});
+    Travel.hasMany(models.Passenger, { as: "passenger"});
     
   };
 
