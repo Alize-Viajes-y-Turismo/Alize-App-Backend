@@ -4,6 +4,10 @@ const { createAccesToken, createAccesTokenSendEmail } = require("../libs/jwt.js"
 const transporter = require("../libs/nodemailer.js");
 const UsersService = require("../services/usersService.js")
 const service = new UsersService();
+const crypto = require('crypto');
+
+
+
 
 // Generar y almacenar tokens de restablecimiento de contraseña
 const sendEmail = async (req, res) => {
@@ -83,6 +87,44 @@ const resetPassword = async (req, res) => {
 
 
 
+app.post('/register', (req, res) => {
+    // Aquí deberías validar y guardar los datos del usuario en la base de datos
+    const { email } = req.body;
+
+    // Generar código de verificación
+    const verificationCode = crypto.randomBytes(3).toString('hex');
+
+    // Enviar correo electrónico con el código de verificación
+    sendVerificationEmail(email, verificationCode);
+
+    res.status(200).json({ message: 'Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.' });
+});
+
+// Función para enviar correo electrónico con el código de verificación
+function sendVerificationEmail(email, verificationCode) {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: 'tu_correo@gmail.com',
+            pass: 'tu_contraseña'
+        }
+    });
+
+    const mailOptions = {
+        from: 'tu_correo@gmail.com',
+        to: email,
+        subject: 'Código de verificación',
+        text: `Tu código de verificación es: ${verificationCode}`
+    };
+
+    transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+            console.log(error);
+        } else {
+            console.log('Correo electrónico enviado: ' + info.response);
+        }
+    });
+}
 
 
 
@@ -128,6 +170,11 @@ const registerUser = async (req, res) => {
                     secure: true,
                     httpOnly: false
                 });
+
+                const verificationCode = crypto.randomBytes(3).toString('hex');
+
+                // Enviar correo electrónico con el código de verificación
+                sendVerificationEmail(email, verificationCode);
 
                 return res.json({ message: "Iniciaste sesión correctamente", data: {id: newUser.id, email: newUser.email}, token: token });
 
