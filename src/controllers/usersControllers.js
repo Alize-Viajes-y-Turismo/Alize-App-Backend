@@ -1,274 +1,171 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { createAccesToken, createAccesTokenSendEmail } = require("../libs/jwt.js"); 
+const { createAccesToken, createAccesTokenSendEmail } = require("../libs/jwt.js");
 const transporter = require("../libs/nodemailer.js");
 const UsersService = require("../services/usersService.js")
 const service = new UsersService();
 const crypto = require('crypto');
 
-
-
-
-// Generar y almacenar tokens de restablecimiento de contraseña
+// Función para enviar correo electrónico con el código de restablecimiento de contraseña
 const sendEmail = async (req, res) => {
-
     const { email } = req.body;
+    // Buscar usuario por correo electrónico
     const userFound = await service.findOneEmail(email);
 
     if (!userFound) {
-        return res.status(404).json({ error: 'Usuario no encontrado' });
+        return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
+    // Generar token de restablecimiento de contraseña
     const token = createAccesTokenSendEmail(email);
 
+    // Almacenar el token en la base de datos para el usuario
     userFound.resetPasswordToken = token;
-
     await userFound.save();
 
     // Enviar correo electrónico de restablecimiento de contraseña
     const mailOptions = {
-        from: 'riverista@hotmail.es',
+        from: "riverista@hotmail.es",
         to: email,
-        subject: 'Restablecer contraseña',
+        subject: "Restablecer contraseña",
         text: `Para restablecer tu contraseña, haz clic en el siguiente enlace: http://tuapp.com/reset-password/${token}`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             console.log(error);
-            res.status(500).json({ error: 'Error al enviar el correo electrónico' });
+            res.status(500).json({ error: "Error al enviar el correo electrónico" });
         } else {
-            console.log('Correo electrónico enviado: ' + info.response);
-            res.status(200).json({ message: 'Correo electrónico enviado con éxito' });
+            console.log("Correo electrónico enviado: " + info.response);
+            res.status(200).json({ message: "Correo electrónico enviado con éxito" });
         }
     });
 };
 
-
+// Función para restablecer la contraseña
 const resetPassword = async (req, res) => {
-
     const { password } = req.body;
     const { token } = req.params;
 
     try {
-        // Buscar el token en la base de datos
+        // Buscar usuario por token de restablecimiento de contraseña
         const userFound = await service.findOneToken(token);
 
         // Verificar si el token existe
-        if (!userFound.dataValues.resetPasswordToken) {
-            return res.status(404).json({ error: 'Token inválido o expirado' });
+        if (!userFound || !userFound.resetPasswordToken) {
+            return res.status(404).json({ error: "Token inválido o expirado" });
         }
 
-        // Generar el hash de la nueva contraseña
+        // Generar hash de la nueva contraseña
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
+        // Decodificar el token para obtener el correo electrónico
         jwt.verify(token, process.env.SECRET, async (err, email) => {
-            
-            const userFound = await service.findOneEmail(email.email); 
-            
-             if (!userFound) {
-                return res.status(404).json({ error: 'Usuario no encontrado' });
-             }
+            if (err) {
+                return res.status(500).json({ error: "Error interno del servidor" });
+            }
 
-             userFound.password = hashedPassword;
-
-            await userFound.save();
-
-            });
-
-        // Responder con un mensaje de éxito
-        res.status(200).json({ message: 'Contraseña actualizada exitosamente' });
+            const userFoundByEmail = await service.findOneEmail(email.email); 
+            if (!userFoundByEmail) {
+                return res.status(404).json({ error: "Usuario no encontrado" });
+            }
+            // Actualizar la contraseña del usuario en la base de datos
+            userFoundByEmail.password = hashedPassword;
+            await userFoundByEmail.save();
+            res.status(200).json({ message: "Contraseña actualizada exitosamente" });
+        });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error interno del servidor' });
+        res.status(500).json({ error: "Error interno del servidor" });
     }
 };
 
-
-
-app.post('/register', (req, res) => {
-    // Aquí deberías validar y guardar los datos del usuario en la base de datos
-    const { email } = req.body;
-
-    // Generar código de verificación
-    const verificationCode = crypto.randomBytes(3).toString('hex');
-
-    // Enviar correo electrónico con el código de verificación
-    sendVerificationEmail(email, verificationCode);
-
-    res.status(200).json({ message: 'Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.' });
-});
-
-// Función para enviar correo electrónico con el código de verificación
-function sendVerificationEmail(email, verificationCode) {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'tu_correo@gmail.com',
-            pass: 'tu_contraseña'
-        }
-    });
-
-    const mailOptions = {
-        from: 'tu_correo@gmail.com',
-        to: email,
-        subject: 'Código de verificación',
-        text: `Tu código de verificación es: ${verificationCode}`
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Correo electrónico enviado: ' + info.response);
-        }
-    });
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Función para registrar un nuevo usuario
 const registerUser = async (req, res) => {
-    
     const { email, password } = req.body;
 
     try {
-
+        // Verificar si el usuario ya existe
         const user = await service.findOneEmail(email);
-
-        //Verificar si el usuario ya existe
-        if (!user) {
-
-            // Hash contraseña
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-
-            const nullUser = await service.findOneNull();
-        
-            if (nullUser) {
-
-                const newUser = await nullUser.update({ email, password: hashedPassword });
-
-                const token = createAccesToken(newUser.id);
-
-                res.cookie("token", token, {
-                    sameSite: "none",
-                    secure: true,
-                    httpOnly: false
-                });
-
-                const verificationCode = crypto.randomBytes(3).toString('hex');
-
-                // Enviar correo electrónico con el código de verificación
-                sendVerificationEmail(email, verificationCode);
-
-                return res.json({ message: "Iniciaste sesión correctamente", data: {id: newUser.id, email: newUser.email}, token: token });
-
-
-            } else {
-
-                const newUser = await service.create({ email, password: hashedPassword })
-
-                const token = createAccesToken(newUser.id);
-
-                res.cookie("token", token, {
-                    sameSite: "none",
-                    secure: true,
-                    httpOnly: false
-                });
-
-                return res.json({ message: "Iniciaste sesión correctamente", data: {id: newUser.id, email: newUser.email}, token: token });
-            
-            };
-
-        } else {
-            
-            return res.status(400).json({ message: "El usuario ya existe" });
-
-        }
-    } catch (error) {
-
-        return res.status(500).json({ message: error.message });
-
-    }
-};
-
-const deleteUser = async (req, res) => {
-
-    //CONSULTAR SI TAMBIÉN ELIMINARÁ LOS PASAJES TOMADOS. EN CASO DE QUE EL PASAJE NO SE PUEDA ELIMINAR POR FUERA DE TÉRMINO QUE SE HARÁ.
-
-    const email = req.user.email;
-
-    try {
-    
-        const user = await service.findOneEmail(email);
-
         if (user) {
-
-            await user.update({ email: null, password: null});
-            return res.json({ message: "Cuenta eliminada correctamente" });
-        
+            return res.status(400).json({ message: "El usuario ya existe." });
         }
-        else {
 
-            return res.status(400).json({ message: "El usuario no existe" });
+        // Hash contraseña
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
-        }
+        // Crear nuevo usuario en la base de datos
+        const newUser = await service.create({ email, password: hashedPassword });
+
+        // Generar token de acceso
+        const token = createAccesToken(newUser.id);
+
+        // Enviar correo electrónico de verificación
+        const verificationCode = crypto.randomBytes(3).toString("hex");
+        const mailOptions = {
+            from: "riverista@hotmail.es",
+            to: email,
+            subject: "Código de verificación",
+            text: `Tu código de verificación es: ${verificationCode}`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+                res.status(500).json({ error: "Error al enviar el correo electrónico" });
+            } else {
+                console.log("Correo electrónico enviado: " + info.response);
+                res.status(200).json({ message: "Correo electrónico enviado con éxito" });
+            }
+        });
+
+        return res.json({ message: "Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.", data: { id: newUser.id, email: newUser.email }, token: token });
     } catch (error) {
-        
         return res.status(500).json({ message: error.message });
-
     }
 };
 
-const loginUser = async (req, res) => {
-
-    const {email, password} = req.body;
-    
+// Función para eliminar un usuario
+const deleteUser = async (req, res) => {
+    const email = req.user.email;
     try {
-
+        // Buscar usuario por correo electrónico
         const user = await service.findOneEmail(email);
+        if (!user) {
+            return res.status(400).json({ message: "El usuario no existe" });
+        }
 
-        //Si el usuario existe y la password está bien, enviar datos
+        // Eliminar usuario de la base de datos
+        await user.update({ email: null, password: null});
+        return res.json({ message: "Cuenta eliminada correctamente" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+// Función para iniciar sesión de usuario
+const loginUser = async (req, res) => {
+    const { email, password } = req.body;
+    try {
+        // Buscar usuario por correo electrónico
+        const user = await service.findOneEmail(email);
+        // Si el usuario existe y la contraseña es correcta, generar token de acceso
         if (user && (await bcrypt.compare(password, user.password))) {
-
-            //Generar token
             const token = createAccesToken(user.id);
-
             res.cookie("token", token, {
                 sameSite: "none",
                 secure: true,
                 httpOnly: false
             });
-
-            return res.json({ message: "Iniciaste sesión correctamente", data: {id: user.id, email: user.email}, token: token });
-
+            return res.json({ message: "Iniciaste sesión correctamente", data: { id: user.id, email: user.email }, token: token });
         } else {
-
             return res.status(400).json({ message: "El email o la contraseña son incorrectos" });
-
         }
-
     } catch (error) {
-        
         return res.status(500).json({ message: error.message })
-
     };
-
 };
 
 const logoutUser = async (req, res) => {
@@ -328,5 +225,7 @@ const updatePassword = async (req, res) => {
 
     }
 };
+
+
 
 module.exports = { registerUser, loginUser, updatePassword, logoutUser, deleteUser, sendEmail, resetPassword };
