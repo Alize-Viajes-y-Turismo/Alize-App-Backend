@@ -2,8 +2,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { createAccesToken, createAccesTokenSendEmail } = require("../libs/jwt.js");
 const transporter = require("../libs/nodemailer.js");
-const UsersService = require("../services/usersService.js")
-const service = new UsersService();
+const UsersServices = require("../services/usersServices.js")
+const service = new UsersServices();
 const crypto = require('crypto');
 
 // Función para enviar correo electrónico con el código de restablecimiento de contraseña
@@ -132,13 +132,13 @@ const deleteUser = async (req, res) => {
     const email = req.user.email;
     try {
         // Buscar usuario por correo electrónico
-        const user = await service.findOneEmail(email);
-        if (!user) {
+        const userFound = await service.findOneEmail(email);
+        if (!userFound) {
             return res.status(400).json({ message: "El usuario no existe" });
         }
 
         // Eliminar usuario de la base de datos
-        await user.update({ email: null, password: null});
+        await userFound.update({ email: null, password: null});
         return res.json({ message: "Cuenta eliminada correctamente" });
     } catch (error) {
         return res.status(500).json({ message: error.message });

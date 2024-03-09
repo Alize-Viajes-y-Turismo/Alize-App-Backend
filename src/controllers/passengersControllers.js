@@ -1,5 +1,5 @@
-const PassengersService = require("../services/passengersService.js")
-const service = new PassengersService();
+const PassengersServices = require("../services/passengersServices.js")
+const service = new PassengersServices();
 
 
 

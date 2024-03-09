@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const UsersService = require("../services/usersService.js");
-const service = new UsersService();
+const UsersServices = require("../services/usersServices.js");
+const service = new UsersServices();
 
 const verifyTokenNavigation = async (req, res, next) => {
 
