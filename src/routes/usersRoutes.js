@@ -27,12 +27,15 @@ router.delete("/users/delete", verifyMiddleware.verifyToken, usersControllers.de
 
 router.post("/verify", navigationControllers.verifyTokenNavigation);
 
+//Verificación de pin
+
+router.post("/users/verificacion", usersControllers.verification);
 
 //Recuperar contraseña
 
-router.post('/sendEmail', usersControllers.sendEmail);
+router.post('/sendEmail', verifyMiddleware.verifyToken, usersControllers.sendEmail);
 
-router.post('/resetPassword/:token', usersControllers.resetPassword);
+router.post('/resetPassword', usersControllers.resetPassword);
 
 
 

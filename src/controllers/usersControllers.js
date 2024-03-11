@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { createAccesToken, createAccesTokenSendEmail } = require("../libs/jwt.js");
+const { createAccesToken } = require("../libs/jwt.js");
 const transporter = require("../libs/nodemailer.js");
 const UsersServices = require("../services/usersServices.js")
 const service = new UsersServices();
@@ -16,20 +16,19 @@ const sendEmail = async (req, res) => {
         return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    // Generar token de restablecimiento de contraseña
-    const token = createAccesTokenSendEmail(email);
-
-    // Almacenar el token en la base de datos para el usuario
-    userFound.resetPasswordToken = token;
-    await userFound.save();
-
-    // Enviar correo electrónico de restablecimiento de contraseña
+  // Enviar correo electrónico de restablecimiento de contraseña
+  
+    const verificationCode = crypto.randomBytes(3).toString("hex");
+  
     const mailOptions = {
         from: "riverista@hotmail.es",
         to: email,
         subject: "Restablecer contraseña",
-        text: `Para restablecer tu contraseña, haz clic en el siguiente enlace: http://tuapp.com/reset-password/${token}`
+        text: `Tu código de verificación es: ${verificationCode}`
     };
+
+    userFound.pin = verificationCode;
+    await userFound.save();
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
@@ -44,29 +43,16 @@ const sendEmail = async (req, res) => {
 
 // Función para restablecer la contraseña
 const resetPassword = async (req, res) => {
-    const { password } = req.body;
-    const { token } = req.params;
+    const { email, password } = req.body;
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     try {
-        // Buscar usuario por token de restablecimiento de contraseña
-        const userFound = await service.findOneToken(token);
+        
+// Buscar usuario
 
-        // Verificar si el token existe
-        if (!userFound || !userFound.resetPasswordToken) {
-            return res.status(404).json({ error: "Token inválido o expirado" });
-        }
-
-        // Generar hash de la nueva contraseña
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        // Decodificar el token para obtener el correo electrónico
-        jwt.verify(token, process.env.SECRET, async (err, email) => {
-            if (err) {
-                return res.status(500).json({ error: "Error interno del servidor" });
-            }
-
-            const userFoundByEmail = await service.findOneEmail(email.email); 
+            const userFoundByEmail = await service.findOneEmail(email); 
             if (!userFoundByEmail) {
                 return res.status(404).json({ error: "Usuario no encontrado" });
             }
@@ -74,7 +60,7 @@ const resetPassword = async (req, res) => {
             userFoundByEmail.password = hashedPassword;
             await userFoundByEmail.save();
             res.status(200).json({ message: "Contraseña actualizada exitosamente" });
-        });
+        ;
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Error interno del servidor" });
@@ -110,6 +96,9 @@ const registerUser = async (req, res) => {
             subject: "Código de verificación",
             text: `Tu código de verificación es: ${verificationCode}`
         };
+
+        newUser.pin = verificationCode;
+        await newUser.save();
 
         transporter.sendMail(mailOptions, (error, info) => {
             if (error) {
@@ -181,6 +170,27 @@ const logoutUser = async (req, res) => {
     }
 };
 
+const verification = async (req, res) => {
+
+    const { code } = req.body;
+
+    
+    try {
+
+let user = await service.findOnePin(code);  
+
+        if (code !== user.pin) {
+            return res.status(404).json({ error: "pin inválido o expirado" });
+        }
+    
+        return res.status(200).json({ message: "codigo correcto" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Error interno del servidor" });
+    }
+}
+
+
 const updatePassword = async (req, res) => {
 
     const { password, newPassword } = req.body
@@ -228,4 +238,4 @@ const updatePassword = async (req, res) => {
 
 
 
-module.exports = { registerUser, loginUser, updatePassword, logoutUser, deleteUser, sendEmail, resetPassword };
+module.exports = { registerUser, loginUser, updatePassword, logoutUser, deleteUser, verification, sendEmail, resetPassword };

@@ -28,7 +28,7 @@ module.exports = (sequelize) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    resetPasswordToken:{
+    pin:{
       type: DataTypes.STRING,
     },
     // Columna para la fecha de creación del usuario

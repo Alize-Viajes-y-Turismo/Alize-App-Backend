@@ -39,6 +39,13 @@ class UsersService {
 
     };
 
+    async findOnePin(Code) {
+
+        const res = await User.findOne({ attributes: ['pin']}, { where: { code: Code } });
+        return res;
+
+    };
+
     async findOneNull() {
 
         const res = await User.findOne({ where: { email: null, password: null } }, {
