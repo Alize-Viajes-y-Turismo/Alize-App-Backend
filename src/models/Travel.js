@@ -5,13 +5,14 @@ const { DataTypes, Sequelize } = require('sequelize');
 module.exports = (sequelize) => {
   
     // Definimos el modelo de Person
-  const Travel = sequelize.define('Travel', {
+  const Travel = sequelize.define('travel', {
     // Definición de las columnas
 
     // Columna de identificación única de la persona
     id: {
       allowNull: false,       // No se permite que sea nulo
       primaryKey: true,       // Es la clave primaria
+      autoIncrement: true,    // Se incrementa automáticamente
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
       unique: true            // Debe ser único
     },

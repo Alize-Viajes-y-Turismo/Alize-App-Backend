@@ -5,7 +5,7 @@ const { DataTypes, Sequelize } = require('sequelize');
 module.exports = (sequelize) => {
   
     // Definimos el modelo de Person
-  const Passenger = sequelize.define('Passenger', {
+  const Passenger = sequelize.define('passenger', {
     // Definición de las columnas
 
     // Columna de identificación única de la persona

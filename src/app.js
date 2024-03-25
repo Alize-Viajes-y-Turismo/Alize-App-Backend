@@ -5,8 +5,8 @@ const morgan = require('morgan');
 const usersRoutes = require('./routes/usersRoutes.js');
 const passengersRoutes = require("./routes/passengerRoutes.js");
 const dotenv = require("dotenv");
-const cors = require('cors');
-
+const cors = require('cors'); 
+ const travelRoutes = require("./routes/travelRoutes.js")
 
 
 const server = express();
@@ -31,7 +31,10 @@ server.use(cookieParser());
 server.use('/api', usersRoutes);
 
 // Rutas passengers
-server.use("/api", passengersRoutes);
+server.use("/api", passengersRoutes); 
+
+// Rutas travels
+server.use("/api", travelRoutes);
 
 // Middleware para manejo de errores
 server.use((err, req, res, next) => { 

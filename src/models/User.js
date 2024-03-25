@@ -4,7 +4,7 @@ const { DataTypes, Sequelize } = require('sequelize');
 // Exportamos una función que define el modelo de usuario
 module.exports = (sequelize) => {
   // Definimos el modelo de usuario
-  const User = sequelize.define('User', {
+  const User = sequelize.define('user', {
     // Definición de las columnas
 
     // Columna de identificación única del usuario

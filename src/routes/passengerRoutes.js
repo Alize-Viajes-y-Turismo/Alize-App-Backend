@@ -9,4 +9,7 @@ const { validator } = require("../middlewares/validator.js");
 //Rutas generales
 router.post("/passengers/register", [registerPassengerValidator(), validator], verifyMiddleware.verifyToken, passengersController.registerPassenger);
 
+router.delete("/passengers/deletePassenger/:id", passengersController.deletePassenger);
+
+
 module.exports = router;

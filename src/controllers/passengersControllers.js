@@ -1,67 +1,52 @@
-const PassengersServices = require("../services/passengersServices.js")
+const PassengersServices = require("../services/passengersServices.js");
 const service = new PassengersServices();
-
-
+const { Passenger } = require("../db");
 
 const registerPassenger = async (req, res) => {
+    const { name, surname, dni, phone, returnOrigin, seatType, wayToPay } = req.body;
 
-    const { name, surname, dni, phone, returnOrigin, seatType, wayToPay, travelId } = req.body;
-
+    // Obtener userId del usuario autenticado
     const userId = req.user.id;
 
-    try {
+    // Obtener travelId de los datos de la solicitud (por ejemplo, desde req.body o req.params)
+    const { travelId } = req.body;
 
+    try {
         const passengerNull = await service.findOneNull();
 
-        //Verificar si el usuario ya existe
-        
         if (passengerNull) {
-
-            const newPassenger = await passengerNull.service.update({ name, surname, dni, phone, returnOrigin, seatType, wayToPay, userId, travelId });
-
+            const newPassenger = await passengerNull.update({ name, surname, dni, phone, returnOrigin, seatType, wayToPay, userId, travelId });
             return res.json({ success: true, data: newPassenger });
-
         } else {
-
-            const newPassenger = await service.create({ name, surname, dni, phone, returnOrigin, seatType, wayToPay, userId, travelId })
-
+            const newPassenger = await service.create({ name, surname, dni, phone, returnOrigin, seatType, wayToPay, userId, travelId });
             return res.json({ success: true, data: newPassenger });
-
-        };
-
+        }
     } catch (error) {
-
         return res.status(500).json({ message: error.message });
-
     }
 };
 
 const deletePassenger = async (req, res) => {
-
-    //CONSULTAR SI TAMBIÉN ELIMINARÁ LOS PASAJES TOMADOS. EN CASO DE QUE EL PASAJE NO SE PUEDA ELIMINAR POR FUERA DE TÉRMINO QUE SE HARÁ.
-
-    const email = req.user.email;
+    const id = req.params.id; // Obtener el ID del pasajero desde los parámetros de la ruta
 
     try {
-    
-        const user = await service.findOneEmail(email);
+        // Buscar el pasajero por su ID
+        const passenger = await service.findOneId(id);
 
-        if (user) {
-
-            await user.update({ email: null, password: null});
-            return res.json({ message: "Cuenta eliminada correctamente" });
-        
-        }
-        else {
-
-            return res.status(400).json({ message: "El usuario no existe" });
-
+        if (passenger) {
+            // Eliminar el pasajero encontrado
+            await passenger.destroy({
+                where: {
+                    id: id // Especificar la condición para eliminar el pasajero por su ID
+                }
+            });
+            return res.json({ message: "Pasajero eliminado correctamente" });
+        } else {
+            return res.status(404).json({ message: "El pasajero no existe" });
         }
     } catch (error) {
-        
         return res.status(500).json({ message: error.message });
-
     }
 };
 
-module.exports = { registerPassenger };
+module.exports = { registerPassenger, deletePassenger };

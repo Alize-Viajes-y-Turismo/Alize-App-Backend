@@ -1,60 +1,46 @@
-const TravelsServices = require("../services/travelsServices.js")
-const service = new TravelsServices();
-
+const { Travel } = require("../db");
+const { User } = require("../db");
 
 
 const registerTravel = async (req, res) => {
-
     const { origin, destiny, date1, date2 } = req.body;
-
-    const userId = req.user.id;
+    const id = req.params.id;
 
     try {
+        const user = await User.findByPk(id);
 
-        const travelNull = await service.findOneNull();
-
-        //Verificar si el usuario ya existe
-        
-        if (passengerNull) {
-
-            const newPassenger = await passengerNull.service.update({ name, surname, dni, phone, returnOrigin, seatType, wayToPay, userId, travelId });
-
-            return res.json({ success: true, data: newPassenger });
-
+        // Check if user exists and if the user is an admin
+        if (user && user.isAdmin === true) {
+            const newTravel = await Travel.create({ origin: origin, destiny: destiny, date1: date1, date2: date2 });
+          
+          console.log(newTravel)
+            return res.json({ success: true, data: newTravel });
         } else {
-
-            const newPassenger = await service.create({ name, surname, dni, phone, returnOrigin, seatType, wayToPay, userId, travelId })
-
-            return res.json({ success: true, data: newPassenger });
-
-        };
-
+            return res.status(403).json({ message: "You are not an admin" });
+        }
     } catch (error) {
-
         return res.status(500).json({ message: error.message });
-
     }
 };
 
-const deletePassenger = async (req, res) => {
+const deleteTravel = async (req, res) => {
 
-    //CONSULTAR SI TAMBIÉN ELIMINARÁ LOS PASAJES TOMADOS. EN CASO DE QUE EL PASAJE NO SE PUEDA ELIMINAR POR FUERA DE TÉRMINO QUE SE HARÁ.
 
-    const email = req.user.email;
+    const id = req.params.id; 
 
     try {
     
-        const user = await service.findOneEmail(email);
+        const travel = await Travel.findByPk(id);
 
-        if (user) {
+        if (travel) {
 
-            await user.update({ email: null, password: null});
-            return res.json({ message: "Cuenta eliminada correctamente" });
+            await travel.destroy();
+            return res.json({ message: "Viaje eliminado correctamente" });
         
         }
         else {
 
-            return res.status(400).json({ message: "El usuario no existe" });
+            return res.status(400).json({ message: "Algo salio mal" });
 
         }
     } catch (error) {
@@ -64,4 +50,13 @@ const deletePassenger = async (req, res) => {
     }
 };
 
-module.exports = { registerPassenger };
+const travels = async (req, res) => {
+    try {
+        const allTravels = await Travel.findAll();
+        return res.json(allTravels); // Enviar los viajes al cliente
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
+module.exports = { registerTravel, deleteTravel, travels};

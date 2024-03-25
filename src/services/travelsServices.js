@@ -1,4 +1,4 @@
-const { Travel } = require("../db");
+const { travel } = require("../db");
 
 class TravelsServices {
     constructor () {}
@@ -7,14 +7,15 @@ class TravelsServices {
 
     async find() {
 
-        const res = await Travel.findAll();
+        const res = await travel.findAll();
         return res;
 
     }
 
     async findOneId(id) {
 
-        const res = await Travel.findByPk(id);
+        const res = await travel.findByPk(id,
+        {attributes: ['id', 'email', 'isAdmin']})
         return res;
 
     }
@@ -31,15 +32,19 @@ class TravelsServices {
     //USER
 
     async create(data) {
-
-        const res = await Travel.create(data);
-        return res;
+            const res = await travel.create(data, {
+                attributes: ['origin', 'destiny', 'date1', 'date2']
+            })
+            return res;
+    
 
     }
 
     async update(data) {
-
-        const res = await Travel.update(data);
+        
+        const res = await travel.update(data, {
+            attributes: ['origin', 'destiny', 'date1', 'date2']
+        })
         return res;
 
     }

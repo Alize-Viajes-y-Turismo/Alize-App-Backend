@@ -15,7 +15,7 @@ class PassengersService {
     async findOneId(id) {
 
         const res = await Passenger.findByPk(id, {
-            attributes: ['id', 'email', 'isAdmin']
+            attributes: ['id']
         });
         return res;
 
@@ -24,7 +24,7 @@ class PassengersService {
     async findOneNull() {
 
         const res = await Passenger.findOne({ where: { name: null, surname: null, dni: null, phone: null, userId: null } }, {
-            attributes: ['id', 'email', 'isAdmin']
+            attributes: ['id', 'userId', 'travelId']
         });
         return res;
 
