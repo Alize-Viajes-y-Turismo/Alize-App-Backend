@@ -1,6 +1,6 @@
 const PassengersServices = require("../services/passengersServices.js");
 const service = new PassengersServices();
-const { Passenger } = require("../db");
+
 
 const registerPassenger = async (req, res) => {
     const { name, surname, dni, phone, returnOrigin, seatType, wayToPay } = req.body;

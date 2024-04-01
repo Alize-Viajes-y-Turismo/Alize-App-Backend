@@ -6,10 +6,11 @@ const { registerPassengerValidator } = require("../validators/passengersValidato
 const { validator } = require("../middlewares/validator.js");
 
 
-//Rutas generales
+// Rutas generales
+// Ruta para el registro de pasajeros
 router.post("/passengers/register", [registerPassengerValidator(), validator], verifyMiddleware.verifyToken, passengersController.registerPassenger);
 
+// Ruta para eliminar un pasajero
 router.delete("/passengers/deletePassenger/:id", passengersController.deletePassenger);
-
 
 module.exports = router;

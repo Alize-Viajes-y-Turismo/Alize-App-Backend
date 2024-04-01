@@ -1,4 +1,4 @@
-// Importamos la clase DataTypes de Sequelize
+// Importamos la clase DataTypes de Sequelize y Sequelize mismo
 const { DataTypes, Sequelize } = require('sequelize');
 
 // Exportamos una función que define el modelo de usuario
@@ -24,12 +24,14 @@ module.exports = (sequelize) => {
     password: {
       type: DataTypes.STRING, // Tipo de datos: STRING
     },
+    // Columna para indicar si el usuario es administrador
     isAdmin: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      type: DataTypes.BOOLEAN, // Tipo de datos: BOOLEAN
+      defaultValue: false,     // Valor por defecto: falso (no es administrador)
     },
+    // Columna para el PIN del usuario
     pin:{
-      type: DataTypes.STRING,
+      type: DataTypes.STRING, // Tipo de datos: STRING
     },
     // Columna para la fecha de creación del usuario
     createdAt: {
@@ -47,10 +49,9 @@ module.exports = (sequelize) => {
     }
   });
 
-  //Relaciones
-
+  // Definimos relaciones
   User.associate = (models) => {
-
+    // Establecemos la relación de uno a muchos entre User y Passenger (un usuario puede tener varios pasajeros)
     User.hasMany(models.Passenger, { as: "passenger"});
     
   };

@@ -1,75 +1,133 @@
 const jwt = require("jsonwebtoken");
 const UsersServices = require("../services/usersServices.js")
 const service = new UsersServices();
+const { Passenger, User } = require("../db");
 
 //User
 
 const getUsers = async (req, res) => {
-
+    const { id } = req.params; // asumiendo que estás obteniendo el id de los parámetros de la solicitud
     try {
+        const user = await service.findOneId(id);
 
-        const usersFound = await service.find();
-        res.status(200).json({ usersFound });
-
+        // Verificar si el usuario existe y si es un administrador
+        if (user && user.isAdmin === true) {
+            // Suponiendo que tienes una función en tu servicio para buscar usuarios con algún tipo de filtro
+            const usersFound = await service.find({ isAdmin: false }); // Por ejemplo, aquí estoy filtrando para excluir a los administradores
+            return res.status(200).json({ users: usersFound });
+        } else {
+            return res.status(403).json({ message: "El usuario no está autorizado para realizar esta acción" });
+        }
+    } catch (error) {
+        console.error("Error al recuperar usuarios:", error);
+        return res.status(500).json({ message: "Se produjo un error al recuperar los usuarios" });
     }
-    catch {
-
-        res.status(404).json({ message: error.message })
-
-    }
-
 };
 
-
 const deleteUser = async (req, res) => {
-
-    const id = req.body.id;
-
+    const { id } = req.params;
     try {
-        // Buscar usuario por correo electrónico
+        // Buscar usuario por ID
         const userFound = await service.findOneId(id);
         if (!userFound) {
             return res.status(400).json({ message: "El usuario no existe" });
         }
 
         // Eliminar usuario de la base de datos
-        await user.update({ email: null, password: null});
+        await User.destroy({ where: { id: id } });
+
         return res.json({ message: "Usuario eliminado correctamente" });
-
     } catch (error) {
-
-        return res.status(500).json({ message: error.message });
-
+        console.error("Error al eliminar usuario:", error);
+        return res.status(500).json({ message: "Ocurrió un error al eliminar el usuario" });
     }
-
 };
 
-//Travel
-
-
-const getTravels = async (req, res) => {
-
-
-};
-
-const deleteTravel = async (req, res) => {
-
-
-};
 
 //Passenger
 
-const getPassengers = async (req, res) => {
-
-
-};
-
 const getPassenger = async (req, res) => {
+    const { id } = req.params; // asumiendo que estás obteniendo el id de los parámetros de la solicitud
+    try {
+        const user = await service.findOneId(id);
 
-
+        // Verificar si el usuario existe y si es un administrador
+        if (user && user.isAdmin === true) {
+            // Suponiendo que tienes una condición para encontrar al pasajero relevante, por ejemplo, por id de usuario
+            const passengerFound = await Passenger.findOne();
+            if (passengerFound) {
+                return res.status(200).json({ pasajero: passengerFound });
+            } else {
+                return res.status(404).json({ message: "Pasajero no encontrado" });
+            }
+        } else {
+            return res.status(403).json({ message: "El usuario no está autorizado para realizar esta acción" });
+        }
+    } catch (error) {
+        console.error("Error al recuperar el pasajero:", error);
+        return res.status(500).json({ message: "Se produjo un error al recuperar los detalles del pasajero" });
+    }
 };
+
 
 const deletePassenger = async (req, res) => {
+    const { id } = req.params;
+    try {
+        // Buscar pasajero por ID
+        const passengerFound = await Passenger.findByPk(id);
+        if (!passengerFound) {
+            return res.status(400).json({ message: "El pasajero no existe" });
+        }
 
-
+        // Eliminar pasajero de la base de datos
+        await Passenger.destroy({ where: { id: id } });
+        return res.json({ message: "Pasajero eliminado correctamente" });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
 };
+
+const createAdmin = async (req, res) => {
+    const { id } = req.body;
+    try {
+        const userFound = await service.findOneId(id);
+
+        if(userFound) {
+            // Actualizamos el rol del usuario a administrador
+            userFound.isAdmin = true;
+
+            // Guardamos los cambios del usuario en la base de datos
+            await userFound.save();
+
+            res.status(200).json({ message: "El usuario ahora es un administrador" });
+        } else {
+            res.status(404).json({ message: "Usuario no encontrado" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+const passengerPay = async (req, res) => {
+    const { id } = req.body;
+    try {
+        const passengerFound = await Passenger.findByPk(id);
+
+        if(passengerFound) {
+            // Actualizamos el estado de pago del pasajero a true
+            passengerFound.wayToPay = true;
+
+            // Guardamos los cambios del pasajero en la base de datos
+            await passengerFound.save();
+
+            res.status(200).json({ message: "El pasajero ha pagado su boleto" });
+        } else {
+            res.status(404).json({ message: "Pasajero no encontrado" });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+module.exports = { getUsers, deleteUser, getPassenger, deletePassenger, createAdmin, passengerPay };
