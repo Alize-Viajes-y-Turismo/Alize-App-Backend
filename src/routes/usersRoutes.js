@@ -2,38 +2,49 @@ const express = require("express");
 const router = express.Router();
 const usersControllers = require("../controllers/usersControllers.js");
 const verifyMiddleware = require("../middlewares/verifyMiddleware.js");
-const navigationControllers = require("../controllers/navigationControllers.js");
-const { registerUserValidator, loginUserValidator, updatePasswordValidator } = require("../validators/usersValidator.js");
-const { validator } = require("../middlewares/validator.js");
 
-//Rutas generales
+//Iniciar sesiòn
 
-//Login
-router.post("/users/login", [ loginUserValidator(), validator ], usersControllers.loginUser);
+router.post("/users/login", usersControllers.loginUser);
+
+//Cerrar sesiòn
 
 router.get("/users/logout", verifyMiddleware.verifyToken, usersControllers.logoutUser);
 
-//Update password
+//Cambiar contraseña
 
-router.put("/users/password", [ updatePasswordValidator(), validator ], verifyMiddleware.verifyToken, usersControllers.updatePassword);
+router.put("/users/updatepassword", verifyMiddleware.verifyToken, usersControllers.updatePassword);
 
-//Register
+//Cambiar nombre
 
-router.post("/users/register", [registerUserValidator(), validator], usersControllers.registerUser);
-
-router.delete("/users/delete", verifyMiddleware.verifyToken, usersControllers.deleteUser);
-
-//Verificación de cookie
-
-router.post("/verify", navigationControllers.verifyTokenNavigation);
-
+router.put("/users/updatename", verifyMiddleware.verifyToken, usersControllers.updateName);
 
 //Recuperar contraseña
 
-router.post('/sendEmail', usersControllers.sendEmail);
+router.put("/users/recoverypassword", usersControllers.recoveryPassword);
 
-router.post('/resetPassword/:token', usersControllers.resetPassword);
+//Registrar usuario
 
+router.post("/users/register", usersControllers.registerUser);
 
+//Enviar email
+
+router.post("/users/sendemailverificationcode", usersControllers.sendEmailVerificationCode);
+
+//Verificación de código
+
+router.post("/users/verifycode", usersControllers.verifyCode);
+
+//Verificación de usuario
+
+router.post("/users/verifyuser", usersControllers.verifyUser);
+
+//Verificación de cookie
+
+router.post("/users/verifytoken", usersControllers.verifyTokenNavigation);
+
+//Obtener datos del usuario
+
+router.get("/users/getprofiledata", verifyMiddleware.verifyToken, usersControllers.getProfileData);
 
 module.exports = router;

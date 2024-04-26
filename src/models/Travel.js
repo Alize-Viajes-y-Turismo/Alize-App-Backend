@@ -13,7 +13,8 @@ module.exports = (sequelize) => {
       allowNull: false,       // No se permite que sea nulo
       primaryKey: true,       // Es la clave primaria
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
-      unique: true            // Debe ser único
+      unique: true,           // Debe ser único
+      autoIncrement: true
     },
     // Columna para el nombre de la persona
     origin: {
@@ -48,8 +49,10 @@ module.exports = (sequelize) => {
 
   Travel.associate = (models) => {
 
-    Travel.hasMany(models.Passenger, { as: "passenger"});
-    
-  };
+    Travel.hasMany(models.Passenger, { foreignKey: 'travelId' });
+
+ };
+
+  return Travel;
 
 };

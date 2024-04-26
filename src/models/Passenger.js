@@ -49,14 +49,12 @@ module.exports = (sequelize) => {
       allowNull: false,       // No se permite que sea nulo
       foreignKey: true,       // Indica que es una clave foránea
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
-      unique: true            // Debe ser único
     },
 
     travelId: {
       allowNull: false,       // No se permite que sea nulo
       foreignKey: true,       // Indica que es una clave foránea
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
-      unique: true            // Debe ser único
     },
     createdAt: {
       type: DataTypes.DATE,   // Tipo de datos: DATE
@@ -74,13 +72,15 @@ module.exports = (sequelize) => {
 
   });
 
-  // Definimos relaciones
   Passenger.associate = (models) => {
-    // Establecemos la relación de pertenencia entre Passenger y User
+
+    // Define la relación con el modelo User
     Passenger.belongsTo(models.User, { foreignKey: 'userId' });
 
+    // Define la relación con el modelo Travel
     Passenger.belongsTo(models.Travel, { foreignKey: 'travelId' });
-    
-  };
+ };
+
+  return Passenger;
 
 };

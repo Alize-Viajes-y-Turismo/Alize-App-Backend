@@ -15,6 +15,10 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER, // Tipo de datos: INTEGER
       unique: true            // Debe ser único
     },
+    name: {
+      type: DataTypes.STRING, // Tipo de datos: STRING
+      unique: true            // Asegura que el email sea único
+    },
     // Columna para el correo electrónico del usuario
     email: {
       type: DataTypes.STRING, // Tipo de datos: STRING
@@ -26,10 +30,17 @@ module.exports = (sequelize) => {
     },
     isAdmin: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
     },
-    resetPasswordToken:{
+    emailVerificationCode:{
       type: DataTypes.STRING,
+    },
+    emailVerificationCodeExpiresAt:{
+      type: DataTypes.DATE,
+    },
+    verified:{
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     // Columna para la fecha de creación del usuario
     createdAt: {
@@ -47,12 +58,12 @@ module.exports = (sequelize) => {
     }
   });
 
-  //Relaciones
-
   User.associate = (models) => {
 
-    User.hasMany(models.Passenger, { as: "passenger"});
+      User.hasMany(models.Passenger, { foreignKey: 'userId' });
     
-  };
+ };
+
+  return User;
 
 };
