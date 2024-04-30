@@ -27,7 +27,7 @@ const deleteTravel = async (req, res) => {
 
     try {
         // Buscar el viaje por su ID
-        const travel = await Travel.findByPk(id);
+        const travel = await Travel.findByPk(id);0
 
         if (travel) {
             // Eliminar el viaje encontrado

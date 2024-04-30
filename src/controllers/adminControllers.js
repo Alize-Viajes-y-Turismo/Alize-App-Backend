@@ -62,8 +62,6 @@ const deleteUser = async (req, res) => {
 };
 
 
-//Passenger
-
 const getPassenger = async (req, res) => {
     const { id } = req.params; // asumiendo que estás obteniendo el id de los parámetros de la solicitud
     try {
@@ -79,14 +77,23 @@ const getPassenger = async (req, res) => {
                     passenger: passengerFound 
                 });
             } else {
-                return res.status(404).json({ success: false, message: "Pasajero no encontrado" });
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "Pasajero no encontrado" 
+                });
             }
         } else {
-            return res.status(403).json({ success: false, message: "El usuario no está autorizado para realizar esta acción" });
+            return res.status(403).json({ 
+                success: false,
+                message: "El usuario no está autorizado para realizar esta acción" 
+            });
         }
     } catch (error) {
         console.error("Error al recuperar el pasajero:", error);
-        return res.status(500).json({ success: false, message: "Se produjo un error al recuperar los detalles del pasajero" });
+        return res.status(500).json({ 
+            success: false,
+            message: "Se produjo un error al recuperar los detalles del pasajero" 
+            });
     }
 };
 
@@ -97,14 +104,23 @@ const deletePassenger = async (req, res) => {
         // Buscar pasajero por ID
         const passengerFound = await Passenger.findByPk(id);
         if (!passengerFound) {
-            return res.status(400).json({ success: false, message: "El pasajero no existe" });
+            return res.status(400).json({ 
+                success: false, 
+                message: "El pasajero no existe" 
+            });
         }
 
         // Eliminar pasajero de la base de datos
         await Passenger.destroy({ where: { id: id } });
-        return res.json({ success: true, message: "Pasajero eliminado correctamente" });
+        return res.json({ 
+            success: true, 
+            message: "Pasajero eliminado correctamente" 
+        });
     } catch (error) {
-        return res.status(500).json({ success: false, message: error.message });
+        return res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -120,12 +136,21 @@ const createAdmin = async (req, res) => {
             // Guardamos los cambios del usuario en la base de datos
             await userFound.save();
 
-            res.status(200).json({ success: true, message: "El usuario ahora es un administrador" });
+            res.status(200).json({ 
+                success: true, 
+                message: "El usuario ahora es un administrador" 
+            });
         } else {
-            res.status(404).json({ success: false, message: "Usuario no encontrado" });
+            res.status(404).json({ 
+                success: false, 
+                message: "Usuario no encontrado" 
+            });
         }
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
@@ -142,12 +167,21 @@ const passengerPay = async (req, res) => {
             // Guardamos los cambios del pasajero en la base de datos
             await passengerFound.save();
 
-            res.status(200).json({ success: true, message: "El pasajero ha pagado su boleto" });
+            res.status(200).json({ 
+                success: true, 
+                message: "El pasajero ha pagado su boleto" 
+            });
         } else {
-            res.status(404).json({ success: false, message: "Pasajero no encontrado" });
+            res.status(404).json({ 
+                success: false, 
+                message: "Pasajero no encontrado" 
+            });
         }
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({
+            success: false, 
+            message: error.message 
+            });
     }
 };
 
